@@ -7,24 +7,27 @@ from .tools import fetch_stock_data, compute_technical_indicators, get_llm_analy
 
 def start_analysis(state: AgentState) -> AgentState:
     """
-    Entry node that takes the initial ticker and prepares the first message.
+    Entry node that takes the initial ticker and config, preparing the first message.
     """
-    ticker = state.get("ticker")
+    ticker = state["ticker"]
     print(f"📊 Starting analysis for {ticker}...")
     user_msg = HumanMessage(content=f"Analyze {ticker} stock performance.")
-    return AgentState(messages=[user_msg], ticker=ticker, df=pd.DataFrame())
+    
+    # The config is already in the state from the initial call
+    state["messages"] = [user_msg]
+    state["df"] = pd.DataFrame()
+    return state
 
 def fetch_data_node(state: AgentState) -> AgentState:
     """
-    Node to fetch stock data using the tool and update the state.
+    Node to fetch stock data, passing the config from the state to the tool.
     """
-    ticker = state["ticker"]
-    df = fetch_stock_data(ticker)
+    df = fetch_stock_data(ticker=state["ticker"], config=state["config"])
     
     if df.empty:
-        ai_msg = AIMessage(content=f"Error: Could not retrieve stock data for {ticker}.")
+        ai_msg = AIMessage(content=f"Error: Could not retrieve stock data for {state['ticker']}.")
     else:
-        ai_msg = AIMessage(content=f"Successfully retrieved {len(df)} days of stock data for {ticker}.")
+        ai_msg = AIMessage(content=f"Successfully retrieved {len(df)} days of stock data for {state['ticker']}.")
         
     state["df"] = df
     state["messages"].append(ai_msg)
@@ -32,10 +35,9 @@ def fetch_data_node(state: AgentState) -> AgentState:
 
 def analyze_indicators_node(state: AgentState) -> AgentState:
     """
-    Node to compute technical indicators and update the state.
+    Node to compute technical indicators, passing the config from the state to the tool.
     """
-    df = state["df"]
-    df_with_indicators = compute_technical_indicators(df)
+    df_with_indicators = compute_technical_indicators(df=state["df"], config=state["config"])
     
     if df_with_indicators.empty:
         ai_msg = AIMessage(content="Error: Could not compute technical indicators.")
@@ -50,12 +52,12 @@ def analyze_with_llm_node(state: AgentState) -> AgentState:
     """
     Node to perform the final analysis with the LLM.
     """
-    analysis_report = get_llm_analysis(
+    analysis__report = get_llm_analysis(
         ticker=state["ticker"],
         df=state["df"],
         messages=state["messages"]
     )
-    ai_msg = AIMessage(content=analysis_report)
+    ai_msg = AIMessage(content=analysis__report)
     state["messages"].append(ai_msg)
     return state
 
