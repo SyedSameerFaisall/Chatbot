@@ -6,13 +6,16 @@ from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, BaseMessage
 from typing import Sequence
 
-def fetch_stock_data(ticker: str, period: str = "6mo", interval: str = "1d") -> pd.DataFrame:
+# Import the config class to use for type hinting
+from .config import AnalysisConfig
+
+def fetch_stock_data(ticker: str, config: AnalysisConfig) -> pd.DataFrame:
     """
-    Fetches historical OHLCV stock data for the given ticker from Yahoo Finance.
+    Fetches historical OHLCV stock data using parameters from the config object.
     """
-    print(f"📈 Fetching stock data for {ticker}...")
+    print(f"📈 Fetching stock data for {ticker} (Period: {config.period}, Interval: {config.interval})...")
     try:
-        df = yf.Ticker(ticker).history(period=period, interval=interval).reset_index()
+        df = yf.Ticker(ticker).history(period=config.period, interval=config.interval).reset_index()
         if df.empty:
             raise ValueError(f"No data found for ticker {ticker}")
         print(f"✅ Retrieved {len(df)} days of data")
@@ -21,9 +24,9 @@ def fetch_stock_data(ticker: str, period: str = "6mo", interval: str = "1d") -> 
         print(f"❌ Error fetching data: {e}")
         return pd.DataFrame()
 
-def compute_technical_indicators(df: pd.DataFrame) -> pd.DataFrame:
+def compute_technical_indicators(df: pd.DataFrame, config: AnalysisConfig) -> pd.DataFrame:
     """
-    Computes and adds key technical indicators to the stock DataFrame.
+    Computes technical indicators using window parameters from the config object.
     """
     print("🔍 Computing technical indicators...")
     if df.empty:
@@ -32,11 +35,12 @@ def compute_technical_indicators(df: pd.DataFrame) -> pd.DataFrame:
         
     df_copy = df.copy()
     try:
-        df_copy["RSI"] = ta.momentum.RSIIndicator(df_copy["Close"]).rsi()
-        macd = ta.trend.MACD(df_copy["Close"])
+        # Use config parameters for calculations
+        df_copy["RSI"] = ta.momentum.RSIIndicator(df_copy["Close"], window=config.rsi_window).rsi()
+        macd = ta.trend.MACD(df_copy["Close"], window_fast=config.macd_fast, window_slow=config.macd_slow, window_sign=config.macd_signal)
         df_copy["MACD"] = macd.macd()
         df_copy["MACD_Signal"] = macd.macd_signal()
-        bb = ta.volatility.BollingerBands(df_copy["Close"])
+        bb = ta.volatility.BollingerBands(df_copy["Close"], window=config.bb_window)
         df_copy["BB_High"] = bb.bollinger_hband()
         df_copy["BB_Low"] = bb.bollinger_lband()
         df_clean = df_copy.dropna()
@@ -49,6 +53,7 @@ def compute_technical_indicators(df: pd.DataFrame) -> pd.DataFrame:
 def get_llm_analysis(ticker: str, df: pd.DataFrame, messages: Sequence[BaseMessage]) -> str:
     """
     Uses an LLM to analyze the stock's technical indicators and generate insights.
+    (This function does not need the config, so it remains unchanged.)
     """
     print("🤖 Analyzing with LLM...")
     if df.empty:
@@ -66,7 +71,7 @@ def get_llm_analysis(ticker: str, df: pd.DataFrame, messages: Sequence[BaseMessa
             - 🎯 **Bollinger High**: ${latest['BB_High']:.2f}
             - 🎯 **Bollinger Low**: ${latest['BB_Low']:.2f}
 
-            Write a clear, structured very detailed **Markdown report** under the following headings:
+            Write a clear, structured **Markdown report** under the following headings:
 
             # 📈 Technical Analysis Report for {ticker}
             ## 1. Price Trend
@@ -74,7 +79,6 @@ def get_llm_analysis(ticker: str, df: pd.DataFrame, messages: Sequence[BaseMessa
             ## 3. MACD Analysis
             ## 4. Bollinger Bands
             ## 5. 🧠 Insight & Recommendation
-            Include any other observations if found and make everything detailed.
         """)
         full_chat = list(messages) + [HumanMessage(content=prompt)]
         llm = ChatOpenAI(model="gpt-4o-mini")
