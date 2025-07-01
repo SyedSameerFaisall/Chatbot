@@ -59,10 +59,11 @@ if analyze_button:
                 
                 status.update(label="Analysis Complete!", state="complete", expanded=False)
 
-                # --- Display the Final Report in a Centered Layout ---
-                col1, col2, col3 = st.columns([1, 6, 1]) # Create a wide central column with narrow spacers
+                # --- Display the Final Report in a Wider Centered Layout ---
+                # Changed the column ratios to reduce side margins
+                col1, col2, col3 = st.columns([0.5, 7, 0.5]) 
 
-                with col2: # All content goes in the central column
+                with col2: # All content goes in the wider central column
                     st.subheader(f"Comprehensive Investment Report for {ticker}")
                     st.markdown(final_report)
 
