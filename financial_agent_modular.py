@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 from langgraph.graph import StateGraph, END
 import pandas as pd
 
-# Import the state and config definitions, and the nodes
+# Import the state and config definitions, and the nodes using absolute paths
 from agent.config import AnalysisConfig
 from agent.state import AgentState
 from agent.nodes import (
@@ -11,8 +11,7 @@ from agent.nodes import (
     fetch_news_node,
     fetch_ratings_node,
     fetch_financials_node,
-    synthesize_report_node,
-    final_response_node
+    synthesize_and_stream_report_node
 )
 
 # Load environment variables from .env file
@@ -35,18 +34,16 @@ class StockAnalysisAgent:
         builder.add_node("fetch_news", fetch_news_node)
         builder.add_node("fetch_ratings", fetch_ratings_node)
         builder.add_node("fetch_financials", fetch_financials_node)
-        builder.add_node("synthesize_report", synthesize_report_node)
-        builder.add_node("final_response", final_response_node)
+        builder.add_node("synthesize_and_stream_report", synthesize_and_stream_report_node)
 
-        # Define the workflow edges sequentially to avoid state conflicts
+        # Define the sequential workflow
         builder.set_entry_point("start_analysis")
         builder.add_edge("start_analysis", "fetch_data_and_technicals")
         builder.add_edge("fetch_data_and_technicals", "fetch_news")
         builder.add_edge("fetch_news", "fetch_ratings")
         builder.add_edge("fetch_ratings", "fetch_financials")
-        builder.add_edge("fetch_financials", "synthesize_report")
-        builder.add_edge("synthesize_report", "final_response")
-        builder.add_edge("final_response", END)
+        builder.add_edge("fetch_financials", "synthesize_and_stream_report")
+        builder.add_edge("synthesize_and_stream_report", END)
 
         return builder.compile()
 
@@ -63,14 +60,15 @@ class StockAnalysisAgent:
             config=config,
             news=[],
             analyst_ratings="",
-            financial_metrics={}
+            financial_metrics={},
+            final_report=""
         )
 
         # Let the graph run to completion
         final_state = self.graph.invoke(initial_state)
 
-        # After the graph has finished, get the final report
-        final_report = final_state['messages'][-1].content
+        # After the graph has finished, get the final report from the state
+        final_report = final_state.get('final_report', "Error: No final report was generated.")
 
         # Save the final, clean report to the output file
         with open(output_path, "w", encoding="utf-8") as f:
