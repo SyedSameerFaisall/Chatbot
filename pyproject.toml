@@ -16,6 +16,8 @@ dependencies = [
     "beautifulsoup4>=4.12.3",  
     "streamlit>=1.33.0",  
     "plotly>=5.20.0",  
+    "fpdf2>=2.7.7", 
+    "markdown2>=2.4.10",    
 ]
 
 [project.optional-dependencies]

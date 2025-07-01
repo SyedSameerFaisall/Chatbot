@@ -43,6 +43,11 @@ with st.sidebar:
     st.info("This agent uses AI to synthesize technicals, valuation, news, and analyst ratings into a final investment recommendation.")
 
 # --- Main Dashboard Area ---
+
+# Use session state to manage what is displayed
+if 'final_report' not in st.session_state:
+    st.session_state.final_report = None
+
 if analyze_button:
     if not ticker:
         st.error("Please enter a stock ticker.")
@@ -56,17 +61,32 @@ if analyze_button:
             try:
                 # The agent's print statements will show progress in the terminal
                 final_report = agent.run_analysis(ticker, config)
+                st.session_state.final_report = final_report # Store the report in session state
                 
                 status.update(label="Analysis Complete!", state="complete", expanded=False)
-
-                # --- Display the Final Report in a Wider Centered Layout ---
-                # Changed the column ratios to reduce side margins
-                col1, col2, col3 = st.columns([0.5, 7, 0.5]) 
-
-                with col2: # All content goes in the wider central column
-                    st.subheader(f"Comprehensive Investment Report for {ticker}")
-                    st.markdown(final_report)
 
             except Exception as e:
                 status.update(label="Analysis Failed", state="error")
                 st.error(f"An unexpected error occurred: {e}")
+                st.session_state.final_report = None # Clear report on error
+
+# Display the report if it exists, otherwise display the landing page
+if st.session_state.final_report:
+    # --- Display the Final Report in a Wider Centered Layout ---
+    col1, col2, col3 = st.columns([0.5, 7, 0.5]) 
+
+    with col2: # All content goes in the wider central column
+        st.subheader(f"Comprehensive Investment Report for {ticker}")
+        st.markdown(st.session_state.final_report)
+else:
+    # --- Landing Page Content ---
+    col1, col2, col3 = st.columns([1, 6, 1])
+    with col2:
+        st.image("https://storage.googleapis.com/generativeai-assets/images/financial_analyst_landing.png", use_column_width=True)
+        st.markdown(
+            "<div style='text-align: center;'>"
+            "<h2>Welcome to the AI Financial Analyst</h2>"
+            "<p>Enter a stock ticker and configure your analysis parameters in the sidebar, then click 'Run Full Analysis' to generate a comprehensive investment report.</p>"
+            "</div>",
+            unsafe_allow_html=True
+        )

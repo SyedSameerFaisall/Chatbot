@@ -8,6 +8,9 @@ tavily-python>=0.3.0
 requests>=2.31.0
 beautifulsoup4>=4.12.3
 streamlit>=1.33.0
+plotly>=5.20.0
+fpdf2>=2.7.7
+markdown2>=2.4.10
 
 [dev]
 pytest
