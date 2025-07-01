@@ -2,14 +2,13 @@ import streamlit as st
 import sys
 import os
 import pandas as pd
+from dotenv import load_dotenv
 
-# Add the project root to the Python path to allow for absolute imports
-sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+load_dotenv()
 
 from agent.config import AnalysisConfig
 from agent.state import AgentState
 from financial_agent_modular import StockAnalysisAgent
-from agent.charts import create_stock_chart # Import the new charting function
 
 # --- Streamlit Page Configuration ---
 st.set_page_config(
@@ -50,8 +49,6 @@ if analyze_button:
         # Use a status container for a cleaner loading experience
         with st.status(f"Running comprehensive analysis for {ticker}...", expanded=True) as status:
             try:
-                # This is a placeholder to run the agent and get the final state
-                # In a real app, you might stream logs here if the agent supported it
                 st.write("🧠 Initializing Agent...")
                 initial_state = AgentState(
                     messages=[], ticker=ticker, df=pd.DataFrame(), config=config,
@@ -64,21 +61,9 @@ if analyze_button:
                 st.write("✅ Analysis complete!")
                 status.update(label="Analysis Complete!", state="complete", expanded=False)
 
-                # --- Display the Results in a Sophisticated Layout ---
-                
-                # Get data from the final state
+                # --- Display the Final Report ---
                 report = final_state.get('final_report', "Report not found.")
-                df_data = final_state.get('df')
                 
-                # Create the interactive chart
-                if not df_data.empty:
-                    st.subheader("Interactive Technical Chart")
-                    chart = create_stock_chart(df_data, ticker)
-                    st.plotly_chart(chart, use_container_width=True)
-                
-                st.divider()
-
-                # Display the final report
                 st.subheader("Comprehensive Investment Report")
                 st.markdown(report)
 
