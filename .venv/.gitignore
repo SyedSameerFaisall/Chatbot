@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environment
+.venv/
+venv/
+env/
+
+# Dependency and Build artifacts
+*.egg-info/
+dist/
+build/
+wheels/
+*.egg
+
+# Secrets
+.env

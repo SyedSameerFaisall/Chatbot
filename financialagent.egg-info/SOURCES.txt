@@ -1,0 +1,12 @@
+README.md
+pyproject.toml
+agent/config.py
+agent/init.py
+agent/nodes.py
+agent/state.py
+agent/tools.py
+financialagent.egg-info/PKG-INFO
+financialagent.egg-info/SOURCES.txt
+financialagent.egg-info/dependency_links.txt
+financialagent.egg-info/requires.txt
+financialagent.egg-info/top_level.txt

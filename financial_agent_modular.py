@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 from langgraph.graph import StateGraph, END
 import pandas as pd
 
-# Import the state and config definitions, and the nodes using absolute paths
+# Import the state and config definitions, and the nodes
 from agent.config import AnalysisConfig
 from agent.state import AgentState
 from agent.nodes import (
@@ -47,9 +47,9 @@ class StockAnalysisAgent:
 
         return builder.compile()
 
-    def run_analysis(self, ticker: str, config: AnalysisConfig, output_path: str = "stock_analysis_output.txt"):
+    def run_analysis(self, ticker: str, config: AnalysisConfig) -> str:
         """
-        Runs the stock analysis for a given ticker using the provided configuration.
+        Runs the stock analysis for a given ticker and returns the final report as a string.
         """
         print("🚀 Starting Stock Analysis Agent...")
         
@@ -69,47 +69,7 @@ class StockAnalysisAgent:
 
         # After the graph has finished, get the final report from the state
         final_report = final_state.get('final_report', "Error: No final report was generated.")
-
-        # Save the final, clean report to the output file
-        with open(output_path, "w", encoding="utf-8") as f:
-            f.write(final_report)
         
-        print(f"\n✅ Analysis complete! Full report saved to {output_path}")
-
-def get_user_config() -> AnalysisConfig:
-    """
-    Prompts the user for custom analysis configuration.
-    Returns a default config if the user declines.
-    """
-    custom = input("Do you want to set custom analysis parameters? (yes/no): ").strip().lower()
-    
-    if custom == 'yes':
-        print("Please provide the following parameters:")
-        try:
-            period = input("Analysis Period (e.g., 6mo, 1y, 2y): ")
-            rsi_window = int(input("RSI Window (e.g., 14): "))
-            bb_window = int(input("Bollinger Bands Window (e.g., 20): "))
-            print("✅ Custom configuration set.")
-            return AnalysisConfig(period=period, rsi_window=rsi_window, bb_window=bb_window)
-        except ValueError:
-            print("❌ Invalid input. Using default configuration.")
-            return AnalysisConfig()
-    else:
-        print("✅ Using default analysis parameters (Period: 6mo, RSI: 14, BB: 20).")
-        return AnalysisConfig()
-
-def main():
-    """Main function to run the agent."""
-    ticker = input("Enter the ticker symbol (e.g., TSLA, MSFT): ").strip().upper()
-    if not ticker:
-        print("❌ No ticker provided. Exiting.")
-        return
-        
-    # Get configuration from the user
-    config = get_user_config()
-    
-    agent = StockAnalysisAgent()
-    agent.run_analysis(ticker, config=config)
-
-if __name__ == "__main__":
-    main()
+        print(f"\n✅ Analysis complete!")
+        # Return the final report instead of writing to a file
+        return final_report

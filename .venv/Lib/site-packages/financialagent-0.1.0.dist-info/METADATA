@@ -1,0 +1,20 @@
+Metadata-Version: 2.4
+Name: financialagent
+Version: 0.1.0
+Summary: A LangGraph-based agent for performing stock analysis.
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+Requires-Dist: pandas>=2.0.0
+Requires-Dist: yfinance>=0.2.0
+Requires-Dist: langchain-openai>=0.1.0
+Requires-Dist: langgraph>=0.0.30
+Requires-Dist: python-dotenv>=1.0.0
+Requires-Dist: ta>=0.10.0
+Requires-Dist: tavily-python>=0.3.0
+Requires-Dist: requests>=2.31.0
+Requires-Dist: beautifulsoup4>=4.12.3
+Requires-Dist: streamlit>=1.33.0
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"
+Requires-Dist: black; extra == "dev"
+Requires-Dist: ruff; extra == "dev"
