@@ -179,7 +179,7 @@ def get_llm_analysis_stream(state: Dict) -> Iterator:
         Write from here: The next setence should be written aswell!!!!
         The following presents an integrated analysis encompassing valuation metrics, technical indicators, and news sentiment over the defined time range.
 
-                
+        Dont --- before executive summary heading
         ####  📌 Executive Summary
 
         Provide a concise, high-level synthesis of your findings across all four pillars. Conclude with a **clear recommendation** (**BUY**, **HOLD**, or **SELL**) and a **confidence level** (High, Medium, Low).
@@ -197,6 +197,7 @@ def get_llm_analysis_stream(state: Dict) -> Iterator:
         Do not recommend any action here—just provide a value-based assessment. Do in table from with recommendation as second column
 
         ### 🔢 Financial Metrics:
+        write in table format MANDATORARILY and then a short summary
         {formatted_metrics}
 
         ---
