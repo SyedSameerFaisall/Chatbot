@@ -171,7 +171,7 @@ def get_llm_analysis_stream(state: Dict) -> Iterator:
 
         ---
 
-        ## 📌 Executive Summary
+        ##  📌 Executive Summary
 
         Provide a concise, high-level synthesis of your findings across all four pillars. Conclude with a **clear recommendation** (**BUY**, **HOLD**, or **SELL**) and a **confidence level** (High, Medium, Low).
 

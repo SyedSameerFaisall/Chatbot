@@ -374,11 +374,7 @@ if analyze_button and not st.session_state.processed:
                 
                 # Final Report
                 st.markdown("### 🎯 AI Investment Analysis")
-                st.markdown(f"""
-                <div class="analysis-card">
-                    {final_report}
-                </div>
-                """, unsafe_allow_html=True)
+                st.markdown(final_report, unsafe_allow_html=False)
                 
                 # Download Report
                 st.download_button(
