@@ -9,6 +9,7 @@ from agent.nodes import (
     start_analysis,
     fetch_data_node,
     analyze_indicators_node,
+    fetch_and_summarize_news_node, # Import the updated node
     analyze_with_llm_node,
     final_response_node
 )
@@ -31,6 +32,7 @@ class StockAnalysisAgent:
         builder.add_node("start_analysis", start_analysis)
         builder.add_node("fetch_data", fetch_data_node)
         builder.add_node("analyze_indicators", analyze_indicators_node)
+        builder.add_node("fetch_news", fetch_and_summarize_news_node) # Use the new orchestrator node
         builder.add_node("analyze_with_llm", analyze_with_llm_node)
         builder.add_node("final_response", final_response_node)
 
@@ -38,7 +40,8 @@ class StockAnalysisAgent:
         builder.set_entry_point("start_analysis")
         builder.add_edge("start_analysis", "fetch_data")
         builder.add_edge("fetch_data", "analyze_indicators")
-        builder.add_edge("analyze_indicators", "analyze_with_llm")
+        builder.add_edge("analyze_indicators", "fetch_news") # Connect to the new news node
+        builder.add_edge("fetch_news", "analyze_with_llm")
         builder.add_edge("analyze_with_llm", "final_response")
         builder.add_edge("final_response", END)
 
@@ -54,7 +57,8 @@ class StockAnalysisAgent:
             messages=[],
             ticker=ticker,
             df=pd.DataFrame(),
-            config=config  # Pass the config into the initial state
+            config=config,
+            news=[] # Initialize news in the state
         )
 
         # Let the graph run to completion
