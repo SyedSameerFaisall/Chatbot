@@ -121,9 +121,7 @@ def get_financial_metrics(ticker: str) -> Dict[str, Any]:
         stock_info = yf.Ticker(ticker).info
         return {
             "Market Cap": stock_info.get("marketCap"),
-            "Forward P/E": stock_info.get("forwardPE"),
-            "PEG Ratio": stock_info.get("pegRatio"),
-            "Price/Sales": stock_info.get("priceToSalesTrailing12Months")
+            "Forward P/E": stock_info.get("forwardPE")
         }
     except Exception as e:
         return {"Error": f"Could not fetch financial metrics: {e}"}
