@@ -4,7 +4,12 @@ import os
 import pandas as pd
 from dotenv import load_dotenv
 
-load_dotenv()
+# Add the project root to the Python path to allow for absolute imports
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+
+# --- Robustly Load Environment Variables ---
+dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+load_dotenv(dotenv_path=dotenv_path, override=True)
 
 from agent.config import AnalysisConfig
 from agent.state import AgentState
@@ -49,23 +54,17 @@ if analyze_button:
         # Use a status container for a cleaner loading experience
         with st.status(f"Running comprehensive analysis for {ticker}...", expanded=True) as status:
             try:
-                st.write("🧠 Initializing Agent...")
-                initial_state = AgentState(
-                    messages=[], ticker=ticker, df=pd.DataFrame(), config=config,
-                    news=[], analyst_ratings="", financial_metrics={}, final_report=""
-                )
+                # The agent's print statements will show progress in the terminal
+                final_report = agent.run_analysis(ticker, config)
                 
-                st.write("⚙️ Executing analysis graph...")
-                final_state = agent.graph.invoke(initial_state)
-                
-                st.write("✅ Analysis complete!")
                 status.update(label="Analysis Complete!", state="complete", expanded=False)
 
-                # --- Display the Final Report ---
-                report = final_state.get('final_report', "Report not found.")
-                
-                st.subheader("Comprehensive Investment Report")
-                st.markdown(report)
+                # --- Display the Final Report in a Centered Layout ---
+                col1, col2, col3 = st.columns([1, 6, 1]) # Create a wide central column with narrow spacers
+
+                with col2: # All content goes in the central column
+                    st.subheader(f"Comprehensive Investment Report for {ticker}")
+                    st.markdown(final_report)
 
             except Exception as e:
                 status.update(label="Analysis Failed", state="error")

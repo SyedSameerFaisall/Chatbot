@@ -128,72 +128,121 @@ def get_financial_metrics(ticker: str) -> Dict[str, Any]:
     except Exception as e:
         return {"Error": f"Could not fetch financial metrics: {e}"}
 
+
 def get_llm_analysis_stream(state: Dict) -> Iterator:
     """
-    Prepares the LLM prompt and returns a streamable iterator.
+    Prepares the LLM prompt using technical, fundamental, and sentiment data.
+    Returns a streamable iterator containing the formatted markdown-based investment report.
     """
     print("🤖 Preparing for LLM analysis stream...")
-    
+
     ticker, df, news, analyst_ratings, financial_metrics = (
-        state['ticker'], state['df'], state['news'], 
+        state['ticker'], state['df'], state['news'],
         state['analyst_ratings'], state['financial_metrics']
     )
 
     if df.empty:
-        def error_stream(): yield "Cannot perform LLM analysis: No technical data available."
+        def error_stream(): yield "❌ Cannot perform LLM analysis: No technical data available."
         return error_stream()
 
-    formatted_news = "\n".join([f"- **{item['title']}** ([Source]({item['url']}))\n  - *Summary*: {item['summary']}" for item in news]) or "No recent news could be scraped or summarized."
-    formatted_metrics = "\n".join([f"- **{key}**: {value if value is not None else 'N/A'}" for key, value in financial_metrics.items()])
+    # Format recent news headlines and financial metrics
+    formatted_news = "\n".join([
+        f"- **{item['title']}** ([Source]({item['url']}))\n  - *Summary*: {item['summary']}"
+        for item in news
+    ]) or "No recent news could be scraped or summarized."
+
+    formatted_metrics = "\n".join([
+        f"- **{key}**: {value if value is not None else 'N/A'}"
+        for key, value in financial_metrics.items()
+    ])
 
     try:
         latest = df.iloc[-1]
+
         prompt = textwrap.dedent(f"""
-            You are a Senior Financial Analyst. Your task is to provide a comprehensive, data-driven investment report for {ticker}. The report must be objective and synthesize all available information into a final, decisive recommendation.
+        # 🧠 LLM-Powered Investment Report: **{ticker}**
 
-            # **Comprehensive Investment Report: {ticker}**
+        You are a **Senior Financial Analyst**. Your objective is to produce a **comprehensive, objective, and data-driven investment report** for the stock `{ticker}`. Base your judgment on the following four analysis pillars:
 
-            ## **1. Executive Summary**
-            Provide a concise, high-level overview of the key findings from all four analysis pillars (Technical, Valuation, News, Analyst Consensus). Conclude with the final, single recommendation from the last section.
+        1. **Valuation Metrics**
+        2. **Technical Indicators**
+        3. **Analyst Ratings**
+        4. **News Sentiment**
 
-            ---
+        Avoid bias and ensure that your final decision is clear and well-supported.
 
-            ## **2. Valuation Analysis**
-            Analyze the company's valuation based on the following metrics. Conclude with a statement on whether the stock appears overvalued, undervalued, or fairly valued. **Do not provide a buy/sell/hold recommendation in this section.**
-            {formatted_metrics}
+        ---
 
-            ---
+        ## 📌 Executive Summary
 
-            ## **3. Technical Analysis**
-            Provide a detailed, neutral interpretation of the latest technical indicators. **Do not provide a buy/sell/hold recommendation in this section.**
-            - **Closing Price**: ${latest['Close']:.2f}
-            - **RSI**: {latest['RSI']:.2f}
-            - **MACD**: {latest['MACD']:.4f} (Signal: {latest['MACD_Signal']:.4f})
-            - **Bollinger Bands**: Upper ${latest['BB_High']:.2f}, Lower ${latest['BB_Low']:.2f}
+        Provide a concise, high-level synthesis of your findings across all four pillars. Conclude with a **clear recommendation** (**BUY**, **HOLD**, or **SELL**) and a **confidence level** (High, Medium, Low).
 
-            ---
+        ---
 
-            ## **4. Analyst Consensus & News Sentiment**
-            
-            ### **Analyst Ratings:**
-            Summarize the current Wall Street analyst consensus and average price target.
-            {analyst_ratings}
+        ## 💰 Valuation Analysis
 
-            ### **Recent News Summaries:**
-            Analyze the sentiment (Positive, Negative, Neutral) of the following news and its potential market impact.
-            {formatted_news}
+        Analyze valuation using the metrics below. Discuss whether the stock appears:
+        - **Overvalued**
+        - **Undervalued**
+        - **Fairly Valued**
 
-            ---
+        Do not recommend any action here—just provide a value-based assessment.
 
-            ## **5. Final Verdict & Synthesized Recommendation**
-            This is the most critical section. Synthesize all four pillars—Valuation, Technicals, Analyst Consensus, and News Sentiment—to form a single, decisive investment thesis. You must be decisive and avoid a non-committal 'HOLD' recommendation unless the evidence is perfectly balanced.
+        ### 🔢 Financial Metrics:
+        {formatted_metrics}
 
-            - **Recommendation**: Based on the total evidence, state clearly: **BUY**, **HOLD**, or **SELL**.
-            - **Confidence Level**: Rate your confidence in this recommendation (High, Medium, Low).
-            - **Justification**: Provide a clear, evidence-based rationale for your final decision. Explain how you weighed the different signals. For example, if technicals are bullish but valuation is extremely high, explain which factor you are prioritizing and why. This justification is the most important part of your analysis.
-            - **Risk Factors**: Briefly mention key risks that could invalidate this recommendation.
+        ---
+
+        ## 📉 Technical Analysis
+
+        Offer an objective interpretation of technical indicators. Avoid any buy/sell recommendations in this section.
+
+        | Indicator        | Value |
+        |------------------|--------|
+        | Closing Price    | ${latest['Close']:.2f} |
+        | RSI (14-day)     | {latest['RSI']:.2f} |
+        | MACD             | {latest['MACD']:.4f} (Signal: {latest['MACD_Signal']:.4f}) |
+        | Bollinger Bands  | Upper ${latest['BB_High']:.2f}, Lower ${latest['BB_Low']:.2f} |
+
+        Describe momentum, volatility, and trend conditions.
+
+        ---
+
+        ## 📰 Analyst Consensus & News Sentiment
+
+        ### 📊 Analyst Ratings
+
+        Summarize analyst consensus and average price targets.
+
+        > {analyst_ratings}
+
+        ### 🗞 News Summary and Sentiment Analysis
+
+        Assess each headline for tone (Positive, Negative, Neutral) and potential market impact.
+
+        {formatted_news}
+
+        ---
+
+        ## ✅ Final Verdict & Investment Thesis
+
+        Integrate all pillars into a **cohesive investment recommendation**.
+
+        - **📌 Recommendation**: BUY / HOLD / SELL
+        - **🔍 Confidence Level**: High / Medium / Low
+        - **🧠 Justification**: Weigh signals across valuation, technicals, news, and analyst sentiment. If there's a conflict, explain what you prioritized and why.
+        - **⚠️ Risk Factors**: Briefly mention key risks that could invalidate your thesis.
+
+        Be decisive, nuanced, and evidence-driven.
         """)
-        
+
+        llm = ChatOpenAI(model="gpt-4o-mini")
+        return llm.stream([HumanMessage(content=prompt)])
+
+    except Exception as e:
+        def error_stream(): yield f"❌ Error in LLM analysis: {e}"
+        return error_stream()
+
         llm = ChatOpenAI(model="gpt-4o-mini")
         return llm.stream([HumanMessage(content=prompt)])
     except Exception as e:
