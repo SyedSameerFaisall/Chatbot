@@ -121,7 +121,15 @@ def get_financial_metrics(ticker: str) -> Dict[str, Any]:
         stock_info = yf.Ticker(ticker).info
         return {
             "Market Cap": stock_info.get("marketCap"),
-            "Forward P/E": stock_info.get("forwardPE")
+            "Forward P/E": stock_info.get("forwardPE"),
+            "Revenue (TTM)": stock_info.get("totalRevenue"),
+            "Net Income (TTM)": stock_info.get("netIncomeToCommon"),
+            "EPS (TTM)": stock_info.get("trailingEps"),
+            "Operating Margin": stock_info.get("operatingMargins"),
+            "Return on Equity (ROE)": stock_info.get("returnOnEquity"),
+            "Debt/Equity Ratio": stock_info.get("debtToEquity"),
+            "Free Cash Flow (TTM)": stock_info.get("freeCashflow"),
+            "Dividend Yield": stock_info.get("dividendYield")
         }
     except Exception as e:
         return {"Error": f"Could not fetch financial metrics: {e}"}
@@ -168,8 +176,10 @@ def get_llm_analysis_stream(state: Dict) -> Iterator:
         Avoid bias and ensure that your final decision is clear and well-supported.
 
         ---
+        Write from here: The next setence should be written aswell!!!!
+        The following presents an integrated analysis encompassing valuation metrics, technical indicators, and news sentiment over the defined time range.
 
-
+                
         ####  📌 Executive Summary
 
         Provide a concise, high-level synthesis of your findings across all four pillars. Conclude with a **clear recommendation** (**BUY**, **HOLD**, or **SELL**) and a **confidence level** (High, Medium, Low).
@@ -184,7 +194,7 @@ def get_llm_analysis_stream(state: Dict) -> Iterator:
         - **Undervalued**
         - **Fairly Valued**
 
-        Do not recommend any action here—just provide a value-based assessment.
+        Do not recommend any action here—just provide a value-based assessment. Do in table from with recommendation as second column
 
         ### 🔢 Financial Metrics:
         {formatted_metrics}
@@ -195,7 +205,7 @@ def get_llm_analysis_stream(state: Dict) -> Iterator:
         #### 📉 Technical Analysis
 
         Offer an objective interpretation of technical indicators. Avoid any buy/sell recommendations in this section.
-
+        It should be a table with the following columns:
         | Indicator        | Value |
         |------------------|--------|
         | Closing Price    | ${latest['Close']:.2f} |

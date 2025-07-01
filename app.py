@@ -374,15 +374,11 @@ if analyze_button and not st.session_state.processed:
                 
                 # Final Report
                 st.markdown("### 🎯 AI Investment Analysis")
-                st.markdown(final_report, unsafe_allow_html=False)
-                
-                # Download Report
-                st.download_button(
-                    label="📄 Download Full Report",
-                    data=final_report,
-                    file_name=f"{ticker}_analysis_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md",
-                    mime="text/markdown"
-                )
+                st.markdown(f"""
+                <div class="analysis-card">
+                    {final_report}
+                </div>
+                """, unsafe_allow_html=True)
 
             except Exception as e:
                 status.update(label="❌ Analysis Failed", state="error")
