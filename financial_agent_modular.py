@@ -8,9 +8,10 @@ from agent.state import AgentState
 from agent.nodes import (
     start_analysis,
     fetch_data_node,
-    analyze_indicators_node,
-    fetch_and_summarize_news_node, # Import the updated node
-    analyze_with_llm_node,
+    fetch_news_node,
+    fetch_ratings_node,
+    fetch_financials_node,
+    synthesize_report_node,
     final_response_node
 )
 
@@ -30,19 +31,21 @@ class StockAnalysisAgent:
 
         # Add nodes to the graph
         builder.add_node("start_analysis", start_analysis)
-        builder.add_node("fetch_data", fetch_data_node)
-        builder.add_node("analyze_indicators", analyze_indicators_node)
-        builder.add_node("fetch_news", fetch_and_summarize_news_node) # Use the new orchestrator node
-        builder.add_node("analyze_with_llm", analyze_with_llm_node)
+        builder.add_node("fetch_data_and_technicals", fetch_data_node)
+        builder.add_node("fetch_news", fetch_news_node)
+        builder.add_node("fetch_ratings", fetch_ratings_node)
+        builder.add_node("fetch_financials", fetch_financials_node)
+        builder.add_node("synthesize_report", synthesize_report_node)
         builder.add_node("final_response", final_response_node)
 
-        # Define the workflow edges
+        # Define the workflow edges sequentially to avoid state conflicts
         builder.set_entry_point("start_analysis")
-        builder.add_edge("start_analysis", "fetch_data")
-        builder.add_edge("fetch_data", "analyze_indicators")
-        builder.add_edge("analyze_indicators", "fetch_news") # Connect to the new news node
-        builder.add_edge("fetch_news", "analyze_with_llm")
-        builder.add_edge("analyze_with_llm", "final_response")
+        builder.add_edge("start_analysis", "fetch_data_and_technicals")
+        builder.add_edge("fetch_data_and_technicals", "fetch_news")
+        builder.add_edge("fetch_news", "fetch_ratings")
+        builder.add_edge("fetch_ratings", "fetch_financials")
+        builder.add_edge("fetch_financials", "synthesize_report")
+        builder.add_edge("synthesize_report", "final_response")
         builder.add_edge("final_response", END)
 
         return builder.compile()
@@ -58,7 +61,9 @@ class StockAnalysisAgent:
             ticker=ticker,
             df=pd.DataFrame(),
             config=config,
-            news=[] # Initialize news in the state
+            news=[],
+            analyst_ratings="",
+            financial_metrics={}
         )
 
         # Let the graph run to completion
