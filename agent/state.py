@@ -1,4 +1,4 @@
-from typing import Annotated, Sequence, TypedDict, List, Dict
+from typing import Annotated, Sequence, TypedDict, List, Dict, Any
 from langchain_core.messages import BaseMessage
 from langgraph.graph.message import add_messages
 import pandas as pd
@@ -15,12 +15,15 @@ class AgentState(TypedDict):
         ticker: The stock ticker symbol being analyzed.
         df: The pandas DataFrame holding the stock data and indicators.
         config: A configuration object with analysis parameters.
-        news: A list of dictionaries containing summarized news articles.
-              Each dictionary will have 'title', 'url', and 'summary'.
+        news: A list of summarized news articles.
+        analyst_ratings: A summary of analyst ratings and price targets.
+        financial_metrics: Key valuation metrics for the stock.
     """
     messages: Annotated[Sequence[BaseMessage], add_messages]
     ticker: str
     df: pd.DataFrame
     config: AnalysisConfig
     news: List[Dict[str, str]]
+    analyst_ratings: str
+    financial_metrics: Dict[str, Any]
 
