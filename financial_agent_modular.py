@@ -47,7 +47,7 @@ class StockAnalysisAgent:
 
         return builder.compile()
 
-    def run_analysis(self, ticker: str, config: AnalysisConfig) -> str:
+    def run_analysis(self, ticker: str, config: AnalysisConfig):
         """
         Runs the stock analysis for a given ticker and returns the final report as a string.
         """
@@ -66,10 +66,7 @@ class StockAnalysisAgent:
 
         # Let the graph run to completion
         final_state = self.graph.invoke(initial_state)
-
-        # After the graph has finished, get the final report from the state
         final_report = final_state.get('final_report', "Error: No final report was generated.")
         
         print(f"\n✅ Analysis complete!")
-        # Return the final report instead of writing to a file
-        return final_report
+        return final_report, final_state

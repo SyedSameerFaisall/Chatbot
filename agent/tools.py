@@ -160,8 +160,6 @@ def get_llm_analysis_stream(state: Dict) -> Iterator:
         latest = df.iloc[-1]
 
         prompt = textwrap.dedent(f"""
-        # 🧠 LLM-Powered Investment Report: **{ticker}**
-
         You are a **Senior Financial Analyst**. Your objective is to produce a **comprehensive, objective, and data-driven investment report** for the stock `{ticker}`. Base your judgment on the following four analysis pillars:
 
         1. **Valuation Metrics**
