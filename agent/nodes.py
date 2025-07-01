@@ -10,7 +10,7 @@ from .tools import (
     scrape_and_summarize_article,
     get_analyst_ratings,
     get_financial_metrics,
-    get_llm_analysis
+    get_llm_analysis_stream # Import the new streaming function
 )
 
 def start_analysis(state: AgentState) -> AgentState:
@@ -24,6 +24,7 @@ def start_analysis(state: AgentState) -> AgentState:
     state["news"] = []
     state["analyst_ratings"] = ""
     state["financial_metrics"] = {}
+    state["final_report"] = ""
     return state
 
 def fetch_data_node(state: AgentState) -> AgentState:
@@ -65,24 +66,29 @@ def fetch_financials_node(state: AgentState) -> AgentState:
     state["financial_metrics"] = metrics
     return state
 
-def synthesize_report_node(state: AgentState) -> AgentState:
+def synthesize_and_stream_report_node(state: AgentState) -> AgentState:
     """
-    Node to perform the final analysis with the LLM, using all gathered data.
-    """
-    # The get_llm_analysis function now takes the whole state dictionary
-    analysis_report = get_llm_analysis(state)
-    ai_msg = AIMessage(content=analysis_report)
-    state["messages"].append(ai_msg)
-    return state
-
-def final_response_node(state: AgentState) -> AgentState:
-    """
-    Node to display the final analysis report to the user.
+    Node to generate the final report by streaming the LLM response to the console.
+    The full report is then saved to the state for file output.
     """
     print("\n" + "="*60)
-    print("📈 FINANCIAL ANALYST INSIGHT:")
+    print("📈 FINANCIAL ANALYST INSIGHT (Streaming):")
     print("="*60)
-    final_report = state["messages"][-1].content
-    print(final_report)
-    print("="*60)
+    
+    # Get the stream iterator from the tool
+    stream = get_llm_analysis_stream(state)
+    
+    complete_report = ""
+    # Stream the response token-by-token
+    for chunk in stream:
+        content = chunk.content
+        print(content, end="", flush=True) # Print each chunk to the console
+        complete_report += content # Build the full report string
+    
+    print("\n" + "="*60)
+    
+    # Save the complete report to the state
+    state["final_report"] = complete_report
+    state["messages"].append(AIMessage(content=complete_report)) # Also add to messages for logging
+    
     return state
