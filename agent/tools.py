@@ -175,16 +175,17 @@ def get_llm_analysis_stream(state: Dict) -> Iterator:
 
         Avoid bias and ensure that your final decision is clear and well-supported.
 
-        ---
-        Write from here: The next setence should be written aswell!!!!
-        The following presents an integrated analysis encompassing valuation metrics, technical indicators, and news sentiment over the defined time range.
+        Begin your report with a brief introduction of the company and its workings summarizing your approach with no headings pls. Then continue with a clearly labeled Executive Summary, followed by detailed sections on each analysis pillar.
 
-        Dont --- before executive summary heading
-        ####  📌 Executive Summary
+        Separate sections with a line!!!
 
-        Provide a concise, high-level synthesis of your findings across all four pillars. Conclude with a **clear recommendation** (**BUY**, **HOLD**, or **SELL**) and a **confidence level** (High, Medium, Low).
+        --- A line here
 
-        ---
+
+        #### 📌 Executive Summary
+        Provide a concise, high-level synthesis of your findings across all four pillars.
+        
+        --- A line here
 
 
         #### 💰 Valuation Analysis
@@ -193,14 +194,14 @@ def get_llm_analysis_stream(state: Dict) -> Iterator:
         - **Overvalued**
         - **Undervalued**
         - **Fairly Valued**
-
+        Do select fairly from the three categories!
         Do not recommend any action here—just provide a value-based assessment. Do in table from with recommendation as second column
 
         ### 🔢 Financial Metrics:
         write in table format MANDATORARILY and then a short summary
         {formatted_metrics}
 
-        ---
+        --- A line here
 
 
         #### 📉 Technical Analysis
@@ -218,7 +219,7 @@ def get_llm_analysis_stream(state: Dict) -> Iterator:
 
         Describe momentum, volatility, and trend conditions.
 
-        ---
+        --- A line here
 
 
         #### 📰 Analyst Consensus & News Sentiment
@@ -235,7 +236,7 @@ def get_llm_analysis_stream(state: Dict) -> Iterator:
 
         {formatted_news}
 
-        ---
+        --- A line here
 
 
         #### ✅ Final Verdict & Investment Thesis
