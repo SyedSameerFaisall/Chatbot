@@ -171,13 +171,15 @@ def get_llm_analysis_stream(state: Dict) -> Iterator:
 
         ---
 
-        ##  📌 Executive Summary
+
+        ####  📌 Executive Summary
 
         Provide a concise, high-level synthesis of your findings across all four pillars. Conclude with a **clear recommendation** (**BUY**, **HOLD**, or **SELL**) and a **confidence level** (High, Medium, Low).
 
         ---
 
-        ## 💰 Valuation Analysis
+
+        #### 💰 Valuation Analysis
 
         Analyze valuation using the metrics below. Discuss whether the stock appears:
         - **Overvalued**
@@ -191,7 +193,8 @@ def get_llm_analysis_stream(state: Dict) -> Iterator:
 
         ---
 
-        ## 📉 Technical Analysis
+
+        #### 📉 Technical Analysis
 
         Offer an objective interpretation of technical indicators. Avoid any buy/sell recommendations in this section.
 
@@ -200,21 +203,24 @@ def get_llm_analysis_stream(state: Dict) -> Iterator:
         | Closing Price    | ${latest['Close']:.2f} |
         | RSI (14-day)     | {latest['RSI']:.2f} |
         | MACD             | {latest['MACD']:.4f} (Signal: {latest['MACD_Signal']:.4f}) |
-        | Bollinger Bands  | Upper ${latest['BB_High']:.2f}, Lower ${latest['BB_Low']:.2f} |
+        | Upper BB  | ${latest['BB_High']:.2f} |
+        | Lower BB | ${latest['BB_Low']:.2f} |
+        |
 
         Describe momentum, volatility, and trend conditions.
 
         ---
 
-        ## 📰 Analyst Consensus & News Sentiment
 
-        ### 📊 Analyst Ratings
+        #### 📰 Analyst Consensus & News Sentiment
+
+        ##### 📊 Analyst Ratings
 
         Summarize analyst consensus and average price targets.
 
         > {analyst_ratings}
 
-        ### 🗞 News Summary and Sentiment Analysis
+        ##### 🗞 News Summary and Sentiment Analysis
 
         Assess each headline for tone (Positive, Negative, Neutral) and potential market impact.
 
@@ -222,7 +228,8 @@ def get_llm_analysis_stream(state: Dict) -> Iterator:
 
         ---
 
-        ## ✅ Final Verdict & Investment Thesis
+
+        #### ✅ Final Verdict & Investment Thesis
 
         Integrate all pillars into a **cohesive investment recommendation**.
 
