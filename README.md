@@ -1,4 +1,8 @@
 # 🤖 AI Financial Analyst
+
+An advanced, multi-tool agent built using **LangGraph** and **LangChain**, designed to deliver a comprehensive, multi-faceted analysis of any stock ticker. The agent synthesizes data from four key pillars — **Technical Analysis**, **Fundamental Valuation**, **News Sentiment**, and **Analyst Consensus** — to generate a decisive investment report, all accessible through a clean, interactive **Streamlit** dashboard.
+
+
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python)
 ![Pandas](https://img.shields.io/badge/pandas-2.0%2B-yellow?logo=pandas)
 ![LangChain](https://img.shields.io/badge/LangChain-0.1%2B-brightgreen?logo=OpenAI)
@@ -11,8 +15,6 @@
 ![BeautifulSoup](https://img.shields.io/badge/BeautifulSoup-4.12%2B-green?logo=html5)
 ![Markdown2](https://img.shields.io/badge/Markdown2-2.4%2B-informational)
 ![FPDF2](https://img.shields.io/badge/FPDF2-2.7%2B-blue)
-
-An advanced, multi-tool agent built using **LangGraph** and **LangChain**, designed to deliver a comprehensive, multi-faceted analysis of any stock ticker. The agent synthesizes data from four key pillars — **Technical Analysis**, **Fundamental Valuation**, **News Sentiment**, and **Analyst Consensus** — to generate a decisive investment report, all accessible through a clean, interactive **Streamlit** dashboard.
 
 ---
 
